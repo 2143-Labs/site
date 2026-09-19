@@ -1,0 +1,6 @@
+# Only the site itself belongs in the image.
+.github
+.gitignore
+Dockerfile
+.dockerignore
+README.md

@@ -1,0 +1,53 @@
+name: Build and push site image
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    # This repo has no Docker Hub credentials, so it builds on the org's
+    # self-hosted runner the same way 2143-k8s builds tor. Swap to
+    # ubuntu-latest if that runner is not shared with this repo.
+    runs-on: [self-hosted, nixos]
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      - name: Build
+        run: |
+          docker build --pull \
+            -t ghcr.io/2143-labs/site:${{ github.run_number }} \
+            -t ghcr.io/2143-labs/site:latest .
+
+      # Do not publish an image that does not serve the site.
+      - name: Smoke test
+        run: |
+          set -euo pipefail
+          port=18099
+          cid=$(docker run -d --rm --read-only --tmpfs /tmp \
+                  -p "127.0.0.1:${port}:8080" \
+                  ghcr.io/2143-labs/site:${{ github.run_number }})
+          trap 'docker rm -f "$cid" >/dev/null 2>&1 || true' EXIT
+
+          for _ in $(seq 1 20); do
+            curl -fsS "http://127.0.0.1:${port}/" >/dev/null 2>&1 && break
+            sleep 1
+          done
+
+          curl -fsS "http://127.0.0.1:${port}/" | grep -q '<title>2143 Labs</title>'
+          curl -fsS -o /dev/null "http://127.0.0.1:${port}/style.css"
+          curl -fsS -o /dev/null "http://127.0.0.1:${port}/tile.svg"
+          curl -fsS -o /dev/null "http://127.0.0.1:${port}/favicon.svg"
+          echo "smoke test passed"
+
+      - name: Push
+        run: |
+          docker push ghcr.io/2143-labs/site:${{ github.run_number }}
+          docker push ghcr.io/2143-labs/site:latest
