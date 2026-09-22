@@ -45,6 +45,7 @@ jobs:
           curl -fsS -o /dev/null "http://127.0.0.1:${port}/style.css"
           curl -fsS -o /dev/null "http://127.0.0.1:${port}/tile.svg"
           curl -fsS -o /dev/null "http://127.0.0.1:${port}/favicon.svg"
+          curl -fsS "http://127.0.0.1:${port}/store/" | grep -q 'Sunspot Collars'
           echo "smoke test passed"
 
       - name: Push
