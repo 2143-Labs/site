@@ -16,7 +16,10 @@
   <link rel="stylesheet" href="/style.css">
 </head>
 <!--
-  NOT LAUNCHED. Nothing here is purchasable; every CTA is interest capture.
+  THE STORE SELLS COLLARS. Services live on the landing page at /.
+
+  NOT LAUNCHED. Nothing here is purchasable; every call to action captures
+  interest by mailto.
 
   OPEN VALUES
     - Spot LTE's only known fact is "LTE". Its feature list is unfilled.
@@ -24,12 +27,15 @@
     - Tier prices are visible while unlaunched. Hide them if they may move.
     - "No subscription" on Mesh follows from Meshtastic + Bluetooth + Find My
       (all licence-free, no airtime). Confirm before making it a claim.
-    - Notify targets are mailto placeholders. A real waitlist needs a backend,
-      and is the only thing on this page that would measure demand.
+    - Accessory prices are proposals.
+    - A real waitlist needs a backend. mailto is a placeholder and is the only
+      thing here that would measure demand.
   OPEN QUESTIONS
     - does Mesh need a base station or a second Meshtastic node to be useful?
     - what airtime do LTE and Global include, and for how long?
     - do LTE and Global also carry Bluetooth and Find My as fallback?
+    - the Apple Find My feature is unresolved: MFi forbids competing location
+      networks, so Meshtastic and Find My may not ship together.
 -->
 <body>
   <main class="viewport">
@@ -39,19 +45,21 @@
       <a class="back" href="/">← Labs</a>
     </header>
 
-    <section class="item">
-      <div class="item__head">
-        <h1 class="item__name">Sunspot Collars</h1>
-      </div>
-      <p class="item__desc">Tracking collars for dogs. Shipping included.</p>
+    <section class="intro">
+      <h1 class="intro__name">Sunspot Collars</h1>
+      <p class="intro__desc">Tracking collars for dogs. Shipping included.</p>
       <p class="launch">Launching Summer 2027</p>
+      <a class="cta" href="mailto:labs@2143.me?subject=Sunspot%20launch%20updates">Get launch updates</a>
     </section>
 
+    <h2 class="section">The line</h2>
+
     <section class="tier">
-      <div class="item__head">
-        <h2 class="item__name">Spot Mesh</h2>
-        <span class="item__price">$150.00</span>
+      <div class="tier__head">
+        <h3 class="tier__name">Spot Mesh</h3>
+        <span class="tier__price">$150.00</span>
       </div>
+      <p class="tier__role">Local mesh</p>
       <ul class="tier__feat">
         <li>Meshtastic mesh radio</li>
         <li>Bluetooth</li>
@@ -62,10 +70,11 @@
     </section>
 
     <section class="tier">
-      <div class="item__head">
-        <h2 class="item__name">Spot LTE</h2>
-        <span class="item__price">$295.00</span>
+      <div class="tier__head">
+        <h3 class="tier__name">Spot LTE</h3>
+        <span class="tier__price">$295.00</span>
       </div>
+      <p class="tier__role">Nationwide</p>
       <ul class="tier__feat">
         <li>LTE.</li>
       </ul>
@@ -73,36 +82,36 @@
     </section>
 
     <section class="tier">
-      <div class="item__head">
-        <h2 class="item__name">Spot Global</h2>
-        <span class="item__price">$500.00</span>
+      <div class="tier__head">
+        <h3 class="tier__name">Spot Global</h3>
+        <span class="tier__price">$500.00</span>
       </div>
+      <p class="tier__role">Worldwide</p>
       <ul class="tier__feat">
         <li>Worldwide coverage.</li>
       </ul>
       <a class="detail" href="mailto:labs@2143.me?subject=Spot%20Global">Notify me</a>
     </section>
 
-    <h2 class="section">Also in the works</h2>
+    <h2 class="section">Accessories</h2>
+    <ul class="products">
+      <li>
+        <span>Battery charger</span>
+        <a class="detail" href="mailto:labs@2143.me?subject=Battery%20charger">+$24.99</a>
+      </li>
+      <li>
+        <span>Spare strap</span>
+        <a class="detail" href="mailto:labs@2143.me?subject=Spare%20strap">+$19.99</a>
+      </li>
+    </ul>
+
+    <h2 class="section">Also coming</h2>
     <ul class="products">
       <li>
         <span>IoT devices</span>
         <a class="detail" href="mailto:labs@2143.me?subject=IoT%20devices">Notify me</a>
       </li>
     </ul>
-
-    <h2 class="section">Services</h2>
-    <ul class="products">
-      <li>
-        <span>Smart home design &amp; consultation</span>
-        <a class="detail" href="mailto:labs@2143.me?subject=Smart%20home%20consultation">Quote</a>
-      </li>
-      <li>
-        <span>Security camera installation</span>
-        <a class="detail" href="mailto:labs@2143.me?subject=Camera%20installation">Quote</a>
-      </li>
-    </ul>
-    <p class="note">Scoped per site, quoted before work begins.</p>
 
     <footer class="contact">
       <p><a class="email" href="mailto:labs@2143.me">labs@2143.me</a></p>
