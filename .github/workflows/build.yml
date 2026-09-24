@@ -46,6 +46,13 @@ jobs:
           curl -fsS -o /dev/null "http://127.0.0.1:${port}/tile.svg"
           curl -fsS -o /dev/null "http://127.0.0.1:${port}/favicon.svg"
           curl -fsS "http://127.0.0.1:${port}/store/" | grep -q 'Sunspot Collars'
+
+          # A directory redirect must stay relative. Behind the TLS-terminating
+          # gateway an absolute one leaks :8080 over plain http, and the browser
+          # hangs until it times out. See the Dockerfile.
+          loc=$(curl -sS -o /dev/null -D - "http://127.0.0.1:${port}/store" \
+                  | tr -d '\r' | awk 'tolower($1)=="location:"{print $2}')
+          [ "$loc" = "/store/" ] || { echo "expected relative redirect to /store/, got: ${loc:-none}"; exit 1; }
           echo "smoke test passed"
 
       - name: Push
