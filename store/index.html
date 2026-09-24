@@ -21,15 +21,36 @@
   NOT LAUNCHED. Nothing here is purchasable; every call to action captures
   interest by mailto.
 
-  Spot Mesh is Meshtastic ONLY. There is no Apple Find My on it, which settles
-  the earlier MFi concern: no Apple authentication chip, no certification, and
-  no clash with the MFi rule against competing location networks. The GPL-3.0
-  Meshtastic obligations still apply to this tier.
+  ARCHITECTURE
+    All three tiers run the same custom board: an ESP32-class microprocessor
+    driving a low-power hardware GPS module. The tiers differ by RADIO, not by
+    capability, so the shared hardware is stated once above the cards and each
+    card lists only its radio.
+
+    Position comes from the dedicated GPS on that board, NOT from the radio
+    module. This matters: the Spot LTE module (u-blox SARA-R510S-01B) has no
+    satellite-positioning receiver at all, which would have been a problem if
+    the board depended on it. It does not. No position claim should be written
+    against any radio module.
+
+  RADIOS, from the modules named:
+    Spot Mesh   open-source LoRa running Meshtastic. Meshtastic only, no Apple
+                Find My, which settles the earlier MFi concern: no Apple
+                authentication chip, no certification, no clash with the MFi
+                rule against competing location networks. The GPL-3.0
+                Meshtastic obligations still apply.
+    Spot LTE    Particle B404X, u-blox SARA-R510S-01B, LTE Cat M1, bands
+                2/4/5/12/13, US/Canada/Mexico ONLY. EtherSIM embedded.
+    Spot Global Particle M635e, LTE-M + 2G + NB-NTN satellite on Skylo,
+                Skylo-certified. About $94.95 for the bare module.
 
   OPEN VALUES
     - the Mesh LTE bridge has no price and no confirmed name
-    - Spot LTE's only known fact is "LTE". Its feature list is unfilled.
-    - Spot Global's transport is UNCONFIRMED. Do not assume satellite.
+    - the ESP32 variant is unknown, so no Wi-Fi or Bluetooth claim is made.
+      ESP32 variants differ (S2 has no Bluetooth, H2 has no Wi-Fi). Confirm the
+      variant before claiming either.
+    - what the board's "other things" are is unknown
+    - "radio extensions" on the Mesh tier is unstated; not written up
     - accessory prices are proposals
     - tier prices are visible while unlaunched; hide them if they may move
     - a real waitlist needs a backend. mailto is a placeholder and is the only
@@ -37,12 +58,11 @@
   OPEN QUESTIONS
     - is the bridge the only way Mesh reaches a phone, or does a home base
       station do it too? This changes how the $150 tier reads.
-    - does Spot Mesh still have Bluetooth? Meshtastic nodes normally reach the
-      phone app over BLE, but that is not confirmed here.
+    - what airtime do LTE and Global include, and for how long? Satellite is
+      the sharp edge: NB-NTN on Skylo is a recurring service, so a $500
+      one-time price cannot fund it indefinitely.
     - is the bridge priced so Mesh + bridge stays clear of the $295 LTE tier?
-      If it does not, the two cannibalise each other.
-    - what airtime do LTE and Global include, and for how long?
-    - do LTE and Global also carry a mesh radio as fallback?
+    - which GPS modules, and is accuracy quoted anywhere?
 -->
 <body>
   <main class="viewport">
@@ -61,6 +81,11 @@
 
     <h2 class="section">The line</h2>
 
+    <p class="shared">
+      Every collar runs the same board — an ESP32 with a low-power hardware GPS.
+      The three tiers differ by radio.
+    </p>
+
     <section class="tier">
       <div class="tier__head">
         <h3 class="tier__name">Spot Mesh</h3>
@@ -68,7 +93,7 @@
       </div>
       <p class="tier__role">Local mesh</p>
       <ul class="tier__feat">
-        <li>Meshtastic mesh radio</li>
+        <li>Meshtastic LoRa radio</li>
       </ul>
       <p class="tier__note">Reaches your phone with the Mesh LTE bridge, below.</p>
       <a class="detail" href="mailto:labs@2143.me?subject=Spot%20Mesh">Notify me</a>
@@ -79,9 +104,9 @@
         <h3 class="tier__name">Spot LTE</h3>
         <span class="tier__price">$295.00</span>
       </div>
-      <p class="tier__role">Nationwide</p>
+      <p class="tier__role">North America</p>
       <ul class="tier__feat">
-        <li>LTE.</li>
+        <li>LTE-M</li>
       </ul>
       <a class="detail" href="mailto:labs@2143.me?subject=Spot%20LTE">Notify me</a>
     </section>
@@ -93,7 +118,7 @@
       </div>
       <p class="tier__role">Worldwide</p>
       <ul class="tier__feat">
-        <li>Worldwide coverage.</li>
+        <li>LTE-M, 2G and satellite</li>
       </ul>
       <a class="detail" href="mailto:labs@2143.me?subject=Spot%20Global">Notify me</a>
     </section>

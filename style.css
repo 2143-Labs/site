@@ -261,6 +261,18 @@ a.detail:hover {
   color: var(--muted);
 }
 
+/* Hardware every tier shares, stated once. Dashed to read as context rather
+   than as another product. */
+.shared {
+  margin: 0.85rem 0 0;
+  padding: 0.85rem 1rem;
+  border: 1px dashed var(--line);
+  border-radius: 14px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
 .tier {
   margin-top: 0.85rem;
   padding: 1.15rem 1.15rem 1.2rem;
