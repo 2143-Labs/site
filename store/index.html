@@ -21,21 +21,28 @@
   NOT LAUNCHED. Nothing here is purchasable; every call to action captures
   interest by mailto.
 
+  Spot Mesh is Meshtastic ONLY. There is no Apple Find My on it, which settles
+  the earlier MFi concern: no Apple authentication chip, no certification, and
+  no clash with the MFi rule against competing location networks. The GPL-3.0
+  Meshtastic obligations still apply to this tier.
+
   OPEN VALUES
+    - the Mesh LTE bridge has no price and no confirmed name
     - Spot LTE's only known fact is "LTE". Its feature list is unfilled.
     - Spot Global's transport is UNCONFIRMED. Do not assume satellite.
-    - Tier prices are visible while unlaunched. Hide them if they may move.
-    - "No subscription" on Mesh follows from Meshtastic + Bluetooth + Find My
-      (all licence-free, no airtime). Confirm before making it a claim.
-    - Accessory prices are proposals.
-    - A real waitlist needs a backend. mailto is a placeholder and is the only
+    - accessory prices are proposals
+    - tier prices are visible while unlaunched; hide them if they may move
+    - a real waitlist needs a backend. mailto is a placeholder and is the only
       thing here that would measure demand.
   OPEN QUESTIONS
-    - does Mesh need a base station or a second Meshtastic node to be useful?
+    - is the bridge the only way Mesh reaches a phone, or does a home base
+      station do it too? This changes how the $150 tier reads.
+    - does Spot Mesh still have Bluetooth? Meshtastic nodes normally reach the
+      phone app over BLE, but that is not confirmed here.
+    - is the bridge priced so Mesh + bridge stays clear of the $295 LTE tier?
+      If it does not, the two cannibalise each other.
     - what airtime do LTE and Global include, and for how long?
-    - do LTE and Global also carry Bluetooth and Find My as fallback?
-    - the Apple Find My feature is unresolved: MFi forbids competing location
-      networks, so Meshtastic and Find My may not ship together.
+    - do LTE and Global also carry a mesh radio as fallback?
 -->
 <body>
   <main class="viewport">
@@ -62,10 +69,8 @@
       <p class="tier__role">Local mesh</p>
       <ul class="tier__feat">
         <li>Meshtastic mesh radio</li>
-        <li>Bluetooth</li>
-        <li>Apple Find My</li>
-        <li>No subscription</li>
       </ul>
+      <p class="tier__note">Reaches your phone with the Mesh LTE bridge, below.</p>
       <a class="detail" href="mailto:labs@2143.me?subject=Spot%20Mesh">Notify me</a>
     </section>
 
@@ -95,6 +100,10 @@
 
     <h2 class="section">Accessories</h2>
     <ul class="products">
+      <li>
+        <span>Mesh LTE bridge</span>
+        <a class="detail" href="mailto:labs@2143.me?subject=Mesh%20LTE%20bridge">Notify me</a>
+      </li>
       <li>
         <span>Battery charger</span>
         <a class="detail" href="mailto:labs@2143.me?subject=Battery%20charger">+$24.99</a>

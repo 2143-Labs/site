@@ -312,6 +312,15 @@ a.detail:hover {
   padding: 0.12rem 0;
 }
 
+/* A caveat on a tier, not a selling point. */
+.tier__note {
+  margin: 0.7rem 0 0;
+  padding-left: 0.65rem;
+  border-left: 2px solid var(--line);
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
 .launch {
   display: inline-block;
   margin: 0.85rem 0 0;
