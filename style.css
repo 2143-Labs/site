@@ -191,6 +191,13 @@ a.detail:hover {
 
 /* --- Store ------------------------------------------------------------- */
 
+/* Store-only tokens. The sky tint is already the middle stop of the header
+   rule, so the three collars reuse colours the page already carries. */
+.viewport--store {
+  --sky: #7dd3fc;
+  --card: #0b0e15;
+}
+
 .back {
   margin-left: auto;
   font-family: var(--mono);
@@ -220,27 +227,6 @@ a.detail:hover {
   color: var(--muted);
 }
 
-.tier__head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.tier__name {
-  margin: 0;
-  font-size: 1.15rem;
-  font-weight: 620;
-  letter-spacing: -0.025em;
-}
-
-.tier__price {
-  font-family: var(--mono);
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--accent);
-}
-
 .section {
   margin: 2.25rem 0 0;
   font-family: var(--mono);
@@ -261,38 +247,240 @@ a.detail:hover {
   color: var(--muted);
 }
 
-/* Hardware every tier shares, stated once. Dashed to read as context rather
-   than as another product. */
-.shared {
+/* The board every collar shares, stated once as plain text rather than as
+   another box competing with the collars. */
+.line__shared {
+  max-width: 46ch;
   margin: 0.85rem 0 0;
-  padding: 0.85rem 1rem;
-  border: 1px dashed var(--line);
-  border-radius: 14px;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+/* One frame, three collars. The 1px grid gap is the divider, so the columns
+   are separated by hairlines instead of by more boxes. */
+.collars {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1px;
+  margin-top: 1.35rem;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--line);
+  overflow: hidden;
+}
+
+.collar {
+  display: flex;
+  flex-direction: column;
+  padding: 1.2rem 1.15rem 1.3rem;
+  background: var(--card);
+}
+
+/* A short rule patterned per radio: dotted mesh hops, cellular dashes, solid
+   satellite. Decorative, so it is aria-hidden in the markup. */
+.collar__mark {
+  width: 2.25rem;
+  height: 3px;
+  border-radius: 999px;
+  background-color: var(--tint);
+}
+
+.collar--mesh {
+  --tint: var(--accent);
+}
+
+.collar--mesh .collar__mark,
+.collar--lte .collar__mark {
+  background-color: transparent;
+}
+
+.collar--mesh .collar__mark {
+  background-image: repeating-linear-gradient(90deg, var(--tint) 0 3px, transparent 3px 8px);
+}
+
+.collar--lte {
+  --tint: var(--sky);
+}
+
+.collar--lte .collar__mark {
+  background-image: repeating-linear-gradient(90deg, var(--tint) 0 13px, transparent 13px 18px);
+}
+
+.collar--global {
+  --tint: var(--accent-2);
+}
+
+.collar__role {
+  margin: 0.8rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--tint);
+}
+
+.collar__name {
+  margin: 0.3rem 0 0;
+  font-size: 1.25rem;
+  font-weight: 650;
+  letter-spacing: -0.028em;
+}
+
+.collar__price {
+  margin: 0.1rem 0 0;
+  font-family: var(--mono);
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* The one line that separates this collar from the other two. */
+.collar__pitch {
+  margin: 1rem 0 0;
+  font-size: 0.95rem;
+  line-height: 1.45;
+  letter-spacing: -0.012em;
+}
+
+/* Absorbs whatever slack the pitch leaves, so the disclosure row and the
+   call to action land on the same line across all three cards. */
+.collar__points {
+  flex-grow: 1;
+  margin: 0.9rem 0 0;
+  padding: 0;
+  list-style: none;
   font-size: 0.88rem;
   line-height: 1.5;
   color: var(--muted);
 }
 
-.tier {
-  margin-top: 0.85rem;
-  padding: 1.15rem 1.15rem 1.2rem;
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.015);
+.collar__points li {
+  position: relative;
+  padding-left: 0.95rem;
 }
 
-.tier__role {
-  margin: 0.2rem 0 0;
+.collar__points li + li {
+  margin-top: 0.4rem;
+}
+
+.collar__points li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.5em;
+  width: 5px;
+  height: 5px;
+  border-radius: 1px;
+  background: var(--tint);
+  opacity: 0.55;
+}
+
+/* Optional detail behind a native disclosure: no script, and the keyboard and
+   screen-reader behaviour comes for free. */
+.collar__specs {
+  margin-top: 1.05rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line);
+}
+
+.collar__specs summary {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  list-style: none;
   font-family: var(--mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.09em;
+  font-size: 0.7rem;
+  letter-spacing: 0.07em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
-.tier .detail {
-  display: inline-block;
+.collar__specs summary::-webkit-details-marker {
+  display: none;
+}
+
+.collar__specs summary::before {
+  content: "+";
+  width: 0.85em;
+  text-align: center;
+  color: var(--tint);
+}
+
+.collar__specs[open] summary::before {
+  content: "−";
+}
+
+.collar__specs summary:hover,
+.collar__specs[open] summary {
+  color: var(--text);
+}
+
+.collar__specs dl {
+  margin: 0.75rem 0 0;
+}
+
+.collar__specs dt {
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.collar__specs dd {
+  margin: 0.15rem 0 0.7rem;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.collar__specs dd:last-child {
+  margin-bottom: 0;
+}
+
+/* Sits on the card floor, so the three call to action links line up. */
+.collar__cta {
+  align-self: flex-start;
+  margin-top: auto;
+  padding-top: 1.2rem;
+}
+
+/* The one caveat the line shares: airtime, satellite status, and the optional
+   bridge. */
+.terms {
+  margin: 0.9rem 0 0;
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+/* The only link inside the specs (the Meshtastic attribution link). */
+.collar__specs a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(94, 234, 212, 0.35);
+}
+
+.collar__specs a:hover {
+  border-bottom-color: currentColor;
+}
+
+/* How owners use the collar: the app, pairing, and where it can connect. */
+.app {
+  max-width: 46ch;
+  margin: 0.7rem 0 0;
+  font-size: 0.9rem;
+  line-height: 1.55;
+  color: var(--muted);
+}
+
+/* Trademark attribution required when the Meshtastic name appears. */
+.contact .legal {
+  max-width: 60ch;
   margin-top: 0.9rem;
+  font-size: 0.72rem;
+  line-height: 1.5;
+  color: var(--muted);
 }
 
 .cta {
@@ -312,27 +500,6 @@ a.detail:hover {
   background: #7bf0dd;
 }
 
-.tier__feat {
-  margin: 0.55rem 0 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.88rem;
-  color: var(--muted);
-}
-
-.tier__feat li {
-  padding: 0.12rem 0;
-}
-
-/* A caveat on a tier, not a selling point. */
-.tier__note {
-  margin: 0.7rem 0 0;
-  padding-left: 0.65rem;
-  border-left: 2px solid var(--line);
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
 .launch {
   display: inline-block;
   margin: 0.85rem 0 0;
@@ -342,4 +509,30 @@ a.detail:hover {
   font-family: var(--mono);
   font-size: 0.72rem;
   color: var(--muted);
+}
+
+/* Three collars side by side need a stage wider than the reading column.
+   Below this width the framed column stays exactly as the landing page has
+   it, and the collars stack. */
+@media (min-width: 56rem) {
+  .viewport--store {
+    max-width: 62rem;
+  }
+
+  .collars {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .intro {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+  }
+
+  .intro .cta {
+    flex: none;
+    margin-top: 0;
+    padding-inline: 1.5rem;
+  }
 }

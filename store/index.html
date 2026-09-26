@@ -4,68 +4,24 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sunspot Collars — 2143 Labs</title>
-  <meta name="description" content="Sunspot Collars — mesh, LTE, and global tracking collars. Launching Summer 2027.">
+  <meta name="description" content="Sunspot Collars — dog tracking collars with swappable batteries. Mesh, LTE, and satellite. Launching Summer 2027.">
   <meta name="theme-color" content="#08090d">
   <meta name="color-scheme" content="dark">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="canonical" href="https://labs.2143.me/store/">
   <meta property="og:type" content="website">
   <meta property="og:title" content="Sunspot Collars — 2143 Labs">
-  <meta property="og:description" content="Mesh, LTE, and global tracking collars. Launching Summer 2027.">
+  <meta property="og:description" content="Dog tracking collars with swappable batteries. Mesh, LTE, and satellite. Launching Summer 2027.">
   <meta property="og:url" content="https://labs.2143.me/store/">
+  <meta property="og:image" content="https://labs.2143.me/store/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Sunspot Collars: Spot Mesh, Spot LTE, and Spot Global. Launching Summer 2027.">
+  <meta name="twitter:card" content="summary_large_image">
   <link rel="stylesheet" href="/style.css">
 </head>
-<!--
-  THE STORE SELLS COLLARS. Services live on the landing page at /.
-
-  NOT LAUNCHED. Nothing here is purchasable; every call to action captures
-  interest by mailto.
-
-  ARCHITECTURE
-    All three tiers run the same custom board: an ESP32-class microprocessor
-    driving a low-power hardware GPS module. The tiers differ by RADIO, not by
-    capability, so the shared hardware is stated once above the cards and each
-    card lists only its radio.
-
-    Position comes from the dedicated GPS on that board, NOT from the radio
-    module. This matters: the Spot LTE module (u-blox SARA-R510S-01B) has no
-    satellite-positioning receiver at all, which would have been a problem if
-    the board depended on it. It does not. No position claim should be written
-    against any radio module.
-
-  RADIOS, from the modules named:
-    Spot Mesh   open-source LoRa running Meshtastic. Meshtastic only, no Apple
-                Find My, which settles the earlier MFi concern: no Apple
-                authentication chip, no certification, no clash with the MFi
-                rule against competing location networks. The GPL-3.0
-                Meshtastic obligations still apply.
-    Spot LTE    Particle B404X, u-blox SARA-R510S-01B, LTE Cat M1, bands
-                2/4/5/12/13, US/Canada/Mexico ONLY. EtherSIM embedded.
-    Spot Global Particle M635e, LTE-M + 2G + NB-NTN satellite on Skylo,
-                Skylo-certified. About $94.95 for the bare module.
-
-  OPEN VALUES
-    - the Mesh LTE bridge has no price and no confirmed name
-    - the ESP32 variant is unknown, so no Wi-Fi or Bluetooth claim is made.
-      ESP32 variants differ (S2 has no Bluetooth, H2 has no Wi-Fi). Confirm the
-      variant before claiming either.
-    - what the board's "other things" are is unknown
-    - "radio extensions" on the Mesh tier is unstated; not written up
-    - accessory prices are proposals
-    - tier prices are visible while unlaunched; hide them if they may move
-    - a real waitlist needs a backend. mailto is a placeholder and is the only
-      thing here that would measure demand.
-  OPEN QUESTIONS
-    - is the bridge the only way Mesh reaches a phone, or does a home base
-      station do it too? This changes how the $150 tier reads.
-    - what airtime do LTE and Global include, and for how long? Satellite is
-      the sharp edge: NB-NTN on Skylo is a recurring service, so a $500
-      one-time price cannot fund it indefinitely.
-    - is the bridge priced so Mesh + bridge stays clear of the $295 LTE tier?
-    - which GPS modules, and is accuracy quoted anywhere?
--->
 <body>
-  <main class="viewport">
+  <main class="viewport viewport--store">
     <header class="brand">
       <img src="/favicon.svg" alt="" width="26" height="26">
       <span>2143 Labs</span>
@@ -73,55 +29,109 @@
     </header>
 
     <section class="intro">
-      <h1 class="intro__name">Sunspot Collars</h1>
-      <p class="intro__desc">Tracking collars for dogs. Shipping included.</p>
-      <p class="launch">Launching Summer 2027</p>
+      <div class="intro__text">
+        <h1 class="intro__name">Sunspot Collars</h1>
+        <p class="intro__desc">Tracking collars for dogs. Swap a battery without powering down. Shipping included.</p>
+        <p class="launch">Launching Summer 2027</p>
+      </div>
       <a class="cta" href="mailto:labs@2143.me?subject=Sunspot%20launch%20updates">Get launch updates</a>
     </section>
 
-    <h2 class="section">The line</h2>
+    <section aria-labelledby="line-h">
+      <h2 class="section" id="line-h">Choose a collar</h2>
 
-    <p class="shared">
-      Every collar runs the same board — an ESP32 with a low-power hardware GPS.
-      The three tiers differ by radio.
+      <p class="line__shared">
+        Choose a radio for where you go. Each comes in a small or large collar.
+      </p>
+
+      <div class="collars">
+        <article class="collar collar--mesh" aria-labelledby="collar-mesh">
+          <span class="collar__mark" aria-hidden="true"></span>
+          <p class="collar__role">Local mesh</p>
+          <h3 class="collar__name" id="collar-mesh">Spot Mesh</h3>
+          <p class="collar__price">$150.00</p>
+          <p class="collar__pitch">
+            Open-source long-range radio hardware without a subscription.
+          </p>
+          <ul class="collar__points">
+            <li>915 MHz LoRa radio</li>
+            <li>Works without cellular coverage</li>
+          </ul>
+          <details class="collar__specs">
+            <summary aria-label="Technical specifications for Spot Mesh">Technical specifications</summary>
+            <dl>
+              <dt>Radio</dt>
+              <dd>915 MHz LoRa</dd>
+              <dt>Network</dt>
+              <dd>Local peer mesh; works with <a href="https://meshtastic.org">Meshtastic&reg;</a> networks</dd>
+              <dt>Subscription</dt>
+              <dd>None for the mesh itself</dd>
+            </dl>
+          </details>
+          <a class="detail collar__cta" href="mailto:labs@2143.me?subject=Spot%20Mesh" aria-label="Notify me about Spot Mesh">Notify me</a>
+        </article>
+
+        <article class="collar collar--lte" aria-labelledby="collar-lte">
+          <span class="collar__mark" aria-hidden="true"></span>
+          <p class="collar__role">North America</p>
+          <h3 class="collar__name" id="collar-lte">Spot LTE</h3>
+          <p class="collar__price">$295.00</p>
+          <p class="collar__pitch">
+            Much longer battery life than Spot Global.
+          </p>
+          <ul class="collar__points">
+            <li>LTE-M radio</li>
+            <li>No bridge needed</li>
+          </ul>
+          <details class="collar__specs">
+            <summary aria-label="Technical specifications for Spot LTE">Technical specifications</summary>
+            <dl>
+              <dt>Radio</dt>
+              <dd>LTE Cat M1 (LTE-M)</dd>
+              <dt>Additional radio</dt>
+              <dd>LoRa</dd>
+              <dt>Network</dt>
+              <dd>US, Canada, and Mexico, where LTE-M service is available</dd>
+            </dl>
+          </details>
+          <a class="detail collar__cta" href="mailto:labs@2143.me?subject=Spot%20LTE" aria-label="Notify me about Spot LTE">Notify me</a>
+        </article>
+
+        <article class="collar collar--global" aria-labelledby="collar-global">
+          <span class="collar__mark" aria-hidden="true"></span>
+          <p class="collar__role">Cellular + satellite</p>
+          <h3 class="collar__name" id="collar-global">Spot Global</h3>
+          <p class="collar__price">$500.00</p>
+          <p class="collar__pitch">
+            Adds satellite for travel beyond the cell network.
+          </p>
+          <ul class="collar__points">
+            <li>LTE + satellite</li>
+          </ul>
+          <details class="collar__specs">
+            <summary aria-label="Technical specifications for Spot Global">Technical specifications</summary>
+            <dl>
+              <dt>Radios</dt>
+              <dd>LTE-M and satellite</dd>
+              <dt>Additional radio</dt>
+              <dd>LoRa</dd>
+            </dl>
+          </details>
+          <a class="detail collar__cta" href="mailto:labs@2143.me?subject=Spot%20Global" aria-label="Notify me about Spot Global">Notify me</a>
+        </article>
+      </div>
+
+      <p class="terms">
+        Airtime plans are not final. Satellite on a moving collar is being confirmed. The Mesh LTE bridge is optional and uses cellular.
+      </p>
+    </section>
+
+    <h2 class="section">The app</h2>
+    <p class="app">
+      See your dog and set up the collar in the sunspot.pet app. Tap your phone to
+      the collar or connect by Bluetooth, then link your own mesh devices, LTE,
+      satellite, or a custom backend.
     </p>
-
-    <section class="tier">
-      <div class="tier__head">
-        <h3 class="tier__name">Spot Mesh</h3>
-        <span class="tier__price">$150.00</span>
-      </div>
-      <p class="tier__role">Local mesh</p>
-      <ul class="tier__feat">
-        <li>Meshtastic LoRa radio</li>
-      </ul>
-      <p class="tier__note">Reaches your phone with the Mesh LTE bridge, below.</p>
-      <a class="detail" href="mailto:labs@2143.me?subject=Spot%20Mesh">Notify me</a>
-    </section>
-
-    <section class="tier">
-      <div class="tier__head">
-        <h3 class="tier__name">Spot LTE</h3>
-        <span class="tier__price">$295.00</span>
-      </div>
-      <p class="tier__role">North America</p>
-      <ul class="tier__feat">
-        <li>LTE-M</li>
-      </ul>
-      <a class="detail" href="mailto:labs@2143.me?subject=Spot%20LTE">Notify me</a>
-    </section>
-
-    <section class="tier">
-      <div class="tier__head">
-        <h3 class="tier__name">Spot Global</h3>
-        <span class="tier__price">$500.00</span>
-      </div>
-      <p class="tier__role">Worldwide</p>
-      <ul class="tier__feat">
-        <li>LTE-M, 2G and satellite</li>
-      </ul>
-      <a class="detail" href="mailto:labs@2143.me?subject=Spot%20Global">Notify me</a>
-    </section>
 
     <h2 class="section">Accessories</h2>
     <ul class="products">
@@ -149,6 +159,7 @@
 
     <footer class="contact">
       <p><a class="email" href="mailto:labs@2143.me">labs@2143.me</a></p>
+      <p class="legal">Meshtastic&reg; is a registered trademark of Meshtastic LLC. Meshtastic software components are released under various licenses, see GitHub for details. No warranty is provided - use at your own risk. This site is not affiliated with or endorsed by the Meshtastic project.</p>
     </footer>
   </main>
 </body>
