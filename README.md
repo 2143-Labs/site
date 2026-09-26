@@ -48,16 +48,24 @@ python3 -m http.server 8080
 
 ## How it deploys
 
-1. Push to `main`. The workflow builds, smoke-tests (`title`, CSS, tile and
-   favicon must all fetch), then pushes `ghcr.io/2143-labs/site:<run_number>`
-   and `:latest`.
-2. Bump the pin in `2143-k8s` — `overlays/prod/kustomization.yaml` — to the new
-   run number. Flux picks it up within a minute and the pod rolls.
+Push to `main` to build and smoke-test the site before publishing
+`ghcr.io/2143-labs/site:<run_number>` and `:latest`. After a successful push
+build, the promotion job uses an SSH deploy key to update only the production
+site `newTag` in `2143-k8s/overlays/prod/kustomization.yaml`; Flux reconciles
+the commit within a minute. Older runs cannot move the pin backward. A rerun
+may reuse its run-number tag only when the rebuilt image is identical; changed
+content requires a new commit and run number. A failed build or promotion
+leaves the current pin unchanged. A manual `workflow_dispatch` builds and
+publishes the image but does not promote it.
 
-The image is pinned deliberately: nothing deploys just because this repo
-changed. `:latest` exists for local use and for an eventual Flux image
-automation, which would need `image-reflector-controller` and
-`image-automation-controller` added to the cluster.
+Promotion requires `DEPLOY_KEY_2143_K8S` as a `site` Actions secret: its private
+half must match a public deploy key registered with write access on `2143-k8s`.
+No key material belongs in either repository. Without that secret, promotion
+fails rather than silently skipping the deployment.
+
+The production image is pinned deliberately; publishing `:latest` alone never
+deploys it. Flux image automation controllers (`image-reflector-controller` and
+`image-automation-controller`) are not installed.
 
 ## Adding pages
 

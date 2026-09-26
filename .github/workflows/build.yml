@@ -5,6 +5,12 @@ on:
     branches: [main]
   workflow_dispatch:
 
+# First-attempt pushes share the production queue; manual builds and reruns get
+# their own queue and cannot evict a pending production deployment.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name == 'push' && github.run_attempt == 1 && 'production' || format('nonproduction-{0}', github.run_id) }}
+  cancel-in-progress: false
+
 jobs:
   build:
     # This repo has no Docker Hub credentials, so it builds on the org's
@@ -15,25 +21,27 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
 
       - name: Log in to GHCR
         run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
 
       - name: Build
+        env:
+          LOCAL_IMAGE: site-build:${{ github.run_id }}-${{ github.run_attempt }}
         run: |
-          docker build --pull \
-            -t ghcr.io/2143-labs/site:${{ github.run_number }} \
-            -t ghcr.io/2143-labs/site:latest .
+          docker build --pull -t "$LOCAL_IMAGE" .
 
       # Do not publish an image that does not serve the site.
       - name: Smoke test
+        env:
+          LOCAL_IMAGE: site-build:${{ github.run_id }}-${{ github.run_attempt }}
         run: |
           set -euo pipefail
-          port=18099
           cid=$(docker run -d --rm --read-only --tmpfs /tmp \
-                  -p "127.0.0.1:${port}:8080" \
-                  ghcr.io/2143-labs/site:${{ github.run_number }})
+                  -p "127.0.0.1::8080" \
+                  "$LOCAL_IMAGE")
+          port=$(docker inspect --format '{{(index (index .NetworkSettings.Ports "8080/tcp") 0).HostPort}}' "$cid")
           trap 'docker rm -f "$cid" >/dev/null 2>&1 || true' EXIT
 
           for _ in $(seq 1 20); do
@@ -56,6 +64,164 @@ jobs:
           echo "smoke test passed"
 
       - name: Push
+        env:
+          DEPLOY_IMAGE: ghcr.io/2143-labs/site:${{ github.run_number }}
+          EVENT_NAME: ${{ github.event_name }}
+          LOCAL_IMAGE: site-build:${{ github.run_id }}-${{ github.run_attempt }}
         run: |
-          docker push ghcr.io/2143-labs/site:${{ github.run_number }}
-          docker push ghcr.io/2143-labs/site:latest
+          set -euo pipefail
+          local_id=$(docker image inspect --format '{{.Id}}' "$LOCAL_IMAGE")
+          pull_log=$(mktemp)
+          if docker pull "$DEPLOY_IMAGE" >"$pull_log" 2>&1; then
+            remote_id=$(docker image inspect --format '{{.Id}}' "$DEPLOY_IMAGE")
+            if [[ "$remote_id" != "$local_id" ]]; then
+              echo "Refusing to overwrite immutable deploy tag $DEPLOY_IMAGE" >&2
+              exit 1
+            fi
+            echo "Deploy tag $DEPLOY_IMAGE already contains this image"
+          else
+            if ! grep -q 'manifest unknown' "$pull_log"; then
+              cat "$pull_log" >&2
+              echo "Could not determine whether deploy tag $DEPLOY_IMAGE exists" >&2
+              exit 1
+            fi
+            docker tag "$LOCAL_IMAGE" "$DEPLOY_IMAGE"
+            docker push "$DEPLOY_IMAGE"
+          fi
+          if [[ "$EVENT_NAME" == push ]]; then
+            docker tag "$LOCAL_IMAGE" ghcr.io/2143-labs/site:latest
+            docker push ghcr.io/2143-labs/site:latest
+          fi
+
+  promote:
+    needs: build
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Require k8s deploy key
+        env:
+          DEPLOY_KEY: ${{ secrets.DEPLOY_KEY_2143_K8S }}
+        run: |
+          if [[ -z "$DEPLOY_KEY" ]]; then
+            echo 'DEPLOY_KEY_2143_K8S is required for production promotion' >&2
+            exit 1
+          fi
+
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: 2143-Labs/2143-k8s
+          ref: main
+          path: 2143-k8s
+          ssh-key: ${{ secrets.DEPLOY_KEY_2143_K8S }}
+
+      - name: Install kustomize
+        run: |
+          set -euo pipefail
+          archive=$(mktemp)
+          curl -fsSL "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.6.0/kustomize_v5.6.0_linux_amd64.tar.gz" -o "$archive"
+          echo "54e4031ddc4e7fc59e408da29e7c646e8e57b8088c51b84b3df0864f47b5148f  $archive" | sha256sum -c -
+          sudo tar xzf "$archive" -C /usr/local/bin
+      - name: Promote site image
+        working-directory: 2143-k8s
+        env:
+          NEW_TAG: ${{ github.run_number }}
+        run: |
+          set -euo pipefail
+          git pull --rebase origin main
+
+          # Inspect the precise root-overlay entry; do not repair an unexpected pin.
+          read_site_tag() {
+            python3 - <<'PY'
+          import pathlib
+          import re
+          import sys
+
+          overlay = pathlib.Path('overlays/prod/kustomization.yaml').read_text()
+          name = r'ghcr\.io/2143-labs/site:latest'
+          matches = re.findall(rf'(?m)^\s*-\s*name:\s*{name}\s*$', overlay)
+          entry = re.findall(
+              rf'(?m)^- name: {name}\n  newName: ghcr\.io/2143-labs/site\n  newTag: "([0-9]+)"$(?!\n[ \t]+\S)',
+              overlay,
+          )
+          if len(matches) != 1 or len(entry) != 1:
+              sys.exit('expected exactly one three-line site image entry with a quoted numeric newTag')
+          print(entry[0])
+          PY
+          }
+
+          [[ "$NEW_TAG" =~ ^[0-9]+$ ]] || { echo 'run number is not numeric' >&2; exit 1; }
+          current_tag=$(read_site_tag)
+          if ! python3 - "$current_tag" "$NEW_TAG" <<'PY'; then
+          import sys
+          if int(sys.argv[1]) > int(sys.argv[2]):
+              sys.exit('refusing to downgrade the production site image')
+          PY
+            exit 1
+          fi
+
+          if [[ "$current_tag" != "$NEW_TAG" ]]; then
+            python3 - overlays/prod/kustomization.yaml "$current_tag" "$NEW_TAG" <<'PY'
+          import pathlib
+          import sys
+
+          path = pathlib.Path(sys.argv[1])
+          content = path.read_text()
+          old = f'''- name: ghcr.io/2143-labs/site:latest
+            newName: ghcr.io/2143-labs/site
+            newTag: "{sys.argv[2]}"'''
+          new = f'''- name: ghcr.io/2143-labs/site:latest
+            newName: ghcr.io/2143-labs/site
+            newTag: "{sys.argv[3]}"'''
+          if content.count(old) != 1:
+              sys.exit('expected exactly one original site image block')
+          path.write_text(content.replace(old, new, 1))
+          PY
+            [[ "$(read_site_tag)" == "$NEW_TAG" ]] || { echo 'site image pin did not update' >&2; exit 1; }
+          fi
+
+          kustomize build overlays/prod > "$RUNNER_TEMP/site-render.yaml"
+          python3 - "$RUNNER_TEMP/site-render.yaml" "$NEW_TAG" <<'PY'
+          import pathlib
+          import re
+          import sys
+
+          render = pathlib.Path(sys.argv[1]).read_text()
+          expected = f'ghcr.io/2143-labs/site:{sys.argv[2]}'
+          deployments = []
+          for document in re.split(r'(?m)^---[ \t]*\n', render):
+              if not re.search(r'(?m)^kind: Deployment$', document):
+                  continue
+              metadata = re.search(r'(?ms)^metadata:\n(.*?)(?=^[^ \t\n#]|\Z)', document)
+              if metadata and re.search(r'(?m)^  name: labs-site$', metadata.group(1)):
+                  deployments.append(document)
+          if len(deployments) != 1:
+              sys.exit('expected exactly one rendered labs-site Deployment')
+          images = re.findall(r'(?m)^[ \t]+- image: (\S+)$', deployments[0])
+          site_images = [image for image in images if image.startswith('ghcr.io/2143-labs/site:')]
+          if site_images != [expected]:
+              sys.exit(f'rendered labs-site image is not {expected}')
+          PY
+
+          git diff --check
+          if [[ "$current_tag" == "$NEW_TAG" ]]; then
+            git diff --exit-code
+            echo 'Production site already pinned to this run; no commit needed'
+            exit 0
+          fi
+
+          [[ "$(git diff --name-only)" == 'overlays/prod/kustomization.yaml' ]] || {
+            echo 'promotion changed files outside the production overlay' >&2
+            exit 1
+          }
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -- overlays/prod/kustomization.yaml
+          git diff --cached --check
+          [[ "$(git diff --cached --name-only)" == 'overlays/prod/kustomization.yaml' ]] || {
+            echo 'promotion staged unexpected files' >&2
+            exit 1
+          }
+          git commit -m "prod: bump site image to ${NEW_TAG}" --only -- overlays/prod/kustomization.yaml
+          git push origin HEAD:main
